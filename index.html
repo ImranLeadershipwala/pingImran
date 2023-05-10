@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ping Game</title>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
+
+    <script>
+      // get canvas element and context
+      const canvas = document.getElementById("myCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // define ball properties
+      let ballRadius = 10;
+      let x = canvas.width / 2;
+      let y = canvas.height - 30;
+      let dx = 2;
+      let dy = -2;
+
+      // define paddle properties
+      let paddleHeight = 10;
+      let paddleWidth = 75;
+      let paddleX = (canvas.width - paddleWidth) / 2;
+      let rightPressed = false;
+      let leftPressed = false;
+
+      // add event listeners for arrow keys
+      document.addEventListener("keydown", keyDownHandler, false);
+      document.addEventListener("keyup", keyUpHandler, false);
+
+      function keyDownHandler(e) {
+        if (e.keyCode == 39) {
+          rightPressed = true;
+        } else if (e.keyCode == 37) {
+          leftPressed = true;
+        }
+      }
+
+      function keyUpHandler(e) {
+        if (e.keyCode == 39) {
+          rightPressed = false;
+        } else if (e.keyCode == 37) {
+          leftPressed = false;
+        }
+      }
+
+      // define draw functions
+      function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.closePath();
+      }
+
+      function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "blue";
+        ctx.fill();
+        ctx.closePath();
+      }
+
+      function draw() {
+        // clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // draw ball and paddle
+        drawBall();
+        drawPaddle();
+
+        // check for collision with walls
+        if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+          dx = -dx;
+        }
+        if (y + dy < ballRadius) {
+          dy = -dy;
+        } else if (y + dy > canvas.height - ballRadius) {
+          // check for collision with paddle
+          if (x > paddleX && x < paddleX + paddleWidth) {
+            dy = -dy;
+          } else {
+            // game over
+            alert("GAME OVER");
+            document.location.reload();
+            clearInterval(interval); // Needed for Chrome to end game
+          }
+        }
+
+        // move paddle
+        if (rightPressed && paddleX < canvas.width - paddleWidth) {
+          paddleX += 7;
+        } else if (leftPressed && paddleX > 0) {
+          paddleX -= 7;
+        }
+
+        // move ball
+        x += dx;
+        y += dy;
+      }
+
+      // start game loop
+      let interval = setInterval(draw, 10);
+    </script>
+  </body>
+</html>
